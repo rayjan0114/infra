@@ -1,7 +1,7 @@
 from loguru import logger
-from pinder.utils.mongo_utils import get_db
-from pinder.utils.get_config import get_config
-from pinder.project.validate import validate
+from pkg.utils.mongo_utils import get_db
+from pkg.utils.get_config import get_config
+from pkg.project.validate import validate
 from bson.objectid import ObjectId
 
 

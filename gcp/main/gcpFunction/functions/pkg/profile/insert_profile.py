@@ -1,9 +1,9 @@
 from loguru import logger
 
 # import uuid
-from pinder.utils.mongo_utils import get_db
-from pinder.utils.utils import get_env_count
-from pinder.utils.http_utils import http_err_msg_, http_success, http_success, http_unknown_error, http_uuid_not_provided
+from pkg.utils.mongo_utils import get_db
+from pkg.utils.utils import get_env_count
+from pkg.utils.http_utils import http_err_msg_, http_success, http_success, http_unknown_error, http_uuid_not_provided
 
 
 @logger.catch

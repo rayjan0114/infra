@@ -5,7 +5,7 @@ from loguru import logger
 
 def get_config():
     cfg = Namespace()
-    cfg.BUCKET_IMAGE_PATH = "pinder-image"
+    cfg.BUCKET_IMAGE_PATH = "pkg-image"
     cfg.BUCKET_URL = "https://storage.googleapis.com"
     cfg.IMAGE_W = 120
     cfg.IMAGE_H = 120

@@ -18,6 +18,6 @@ def get_db():
         password = response.payload.data.decode("UTF-8")
     else:
         password = os.getenv("MONGODB_PASSWORD")
-    client = pymongo.MongoClient(f"mongodb+srv://pinder001:{password}@cluster0.y7btn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    client = pymongo.MongoClient(f"mongodb+srv://pkg001:{password}@cluster0.y7btn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = client.data
     return db

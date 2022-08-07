@@ -4,9 +4,9 @@ from loguru import logger
 import os
 from PIL import Image
 from google.cloud import storage
-from pinder.utils.utils import get_env_count, get_tempfile_path
-from pinder.utils.http_utils import http_file_not_exist, http_image_file_format_err, http_unknown_error, http_uuid_not_provided, http_invalid_source_path
-from pinder.utils.get_config import get_config
+from pkg.utils.utils import get_env_count, get_tempfile_path
+from pkg.utils.http_utils import http_file_not_exist, http_image_file_format_err, http_unknown_error, http_uuid_not_provided, http_invalid_source_path
+from pkg.utils.get_config import get_config
 
 cfg = get_config()
 
@@ -25,7 +25,7 @@ def insert_file(request):
             return http_invalid_source_path()
 
         storage_client = storage.Client()
-        # bucket_name = os.environ.get('pinder-image')
+        # bucket_name = os.environ.get('pkg-image')
         bucket = storage_client.get_bucket(cfg.BUCKET_IMAGE_PATH)
         # TODO: limit file size
         img_file = request.files.get("file", None)

@@ -1,11 +1,11 @@
 from loguru import logger
-from pinder.utils.get_config import get_config
-from pinder.profile.delete_profile import delete_profile
-from pinder.profile.insert_profile import insert_profile
-from pinder.profile.find_profile import find_profile
-from pinder.profile.update_profile import update_profile
+from pkg.utils.get_config import get_config
+from pkg.profile.delete_profile import delete_profile
+from pkg.profile.insert_profile import insert_profile
+from pkg.profile.find_profile import find_profile
+from pkg.profile.update_profile import update_profile
 from flask import jsonify
-from pinder.utils.http_utils import http_method_not_allow_js, http_unknown_error_js, http_result_msg_
+from pkg.utils.http_utils import http_method_not_allow_js, http_unknown_error_js, http_result_msg_
 
 cfg = get_config()
 

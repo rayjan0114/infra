@@ -1,6 +1,6 @@
 from loguru import logger
-from pinder.utils.mongo_utils import get_db
-from pinder.utils.http_utils import http_err_msg_, http_unknown_error, http_uuid_not_exist, http_uuid_not_provided
+from pkg.utils.mongo_utils import get_db
+from pkg.utils.http_utils import http_err_msg_, http_unknown_error, http_uuid_not_exist, http_uuid_not_provided
 
 
 @logger.catch

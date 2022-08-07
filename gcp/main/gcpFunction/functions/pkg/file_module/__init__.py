@@ -1,7 +1,7 @@
 from loguru import logger
-from pinder.file_module.insert_file import insert_file
+from pkg.file_module.insert_file import insert_file
 from flask import jsonify
-from pinder.utils.http_utils import http_method_not_allow_js, http_unknown_error_js, http_result_msg_
+from pkg.utils.http_utils import http_method_not_allow_js, http_unknown_error_js, http_result_msg_
 
 
 @logger.catch

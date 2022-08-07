@@ -1,7 +1,7 @@
 from google.api_core import retry
 from loguru import logger
-from pinder.utils.mongo_utils import get_db
-from pinder.project.validate import validate
+from pkg.utils.mongo_utils import get_db
+from pkg.project.validate import validate
 from bson.objectid import ObjectId
 
 
