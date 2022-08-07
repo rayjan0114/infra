@@ -2,7 +2,7 @@ Cloudformation Batch Jobs & Slack Alert for Failed Job Events
 ===
 <div align="center">
 <p>
-   <img width="850" src="https://github.com/rayjan0114/infra/tree/main/aws_batch_event_sns_lambda/res/template-designer.png"></a>
+   <img width="850" src="https://github.com/rayjan0114/infra/blob/main/aws_batch_event_sns_lambda/res/template-designer.png"></a>
 </p>
 </div>
 
