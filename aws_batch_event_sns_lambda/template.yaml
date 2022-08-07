@@ -1,0 +1,268 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Setup cron jobs with a job queue and send slack message when a job fails.
+Parameters:
+  BatchSG:
+    Type: String
+  ProjectId:
+    Type: String
+  Region:
+    Type: String
+  Subnet1:
+    Type: String
+  Subnet2:
+    Type: String
+  Subnet3:
+    Type: String
+  WebhookUrl:
+    Type: String
+Resources:
+  BatchTaskFargateRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+    Type: AWS::IAM::Role
+  ComputeEnvironment:
+    Properties:
+      ComputeEnvironmentName: cron-compute
+      ComputeResources:
+        MaxvCpus: 16
+        SecurityGroupIds:
+          - !Ref 'BatchSG'
+        Subnets:
+          - !Ref 'Subnet1'
+          - !Ref 'Subnet2'
+          - !Ref 'Subnet3'
+        Type: FARGATE
+      ServiceRole: !Join
+        - ':'
+        - - 'arn:aws:iam:'
+          - !Ref 'ProjectId'
+          - role/aws-service-role/batch.amazonaws.com/AWSServiceRoleForBatch
+      State: ENABLED
+      Type: MANAGED
+    Type: AWS::Batch::ComputeEnvironment
+  CronFailed:
+    Properties:
+      DisplayName: CronFailed
+      Subscription:
+        - Endpoint: !GetAtt 'LambdaCronFailNotify.Arn'
+          Protocol: lambda
+      TopicName: CronFailed
+    Type: AWS::SNS::Topic
+  CronFailedTopicPolicy:
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - sns:Publish
+            Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+            Resource:
+              - !Ref 'CronFailed'
+      Topics:
+        - !Ref 'CronFailed'
+    Type: AWS::SNS::TopicPolicy
+  EventBridgeInvokeBatchJobQueueRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - batch:SubmitJob
+                Effect: Allow
+                Resource:
+                  - '*'
+            Version: '2012-10-17'
+          PolicyName: EventBridgeInvokeBatchJobQueuePolicy
+    Type: AWS::IAM::Role
+  EventRuleCronFailJob:
+    Properties:
+      Name: cron-fail
+      ScheduleExpression: cron(*/3 * ? * * *)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref 'JobQueueCron'
+          BatchParameters:
+            JobDefinition: !Join
+              - ':'
+              - - arn:aws:batch
+                - !Ref 'Region'
+                - !Ref 'ProjectId'
+                - job-definition/cron-fail
+                - 1
+            JobName: cron-fail-eventbridge
+          Id: cron-fail
+          RoleArn: !GetAtt 'EventBridgeInvokeBatchJobQueueRole.Arn'
+    Type: AWS::Events::Rule
+  EventRuleCronFailed:
+    Properties:
+      Description: Send SNS for cron jobs of cron-queue for which status are FAILED
+      EventPattern:
+        detail:
+          jobQueue:
+            - !Ref 'JobQueueCron'
+          status:
+            - FAILED
+        detail-type:
+          - Batch Job State Change
+        source:
+          - aws.batch
+      Name: cron-failed
+      State: ENABLED
+      Targets:
+        - Arn: !Ref 'CronFailed'
+          Id: cron-failed
+    Type: AWS::Events::Rule
+  EventRuleCronSuccessJob:
+    Properties:
+      Name: cron-success
+      ScheduleExpression: cron(*/1 * ? * * *)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref 'JobQueueCron'
+          BatchParameters:
+            JobDefinition: !Join
+              - ':'
+              - - arn:aws:batch
+                - !Ref 'Region'
+                - !Ref 'ProjectId'
+                - job-definition/cron-success
+                - 1
+            JobName: cron-success-eventbridge
+          Id: cron-success
+          RoleArn: !GetAtt 'EventBridgeInvokeBatchJobQueueRole.Arn'
+    Type: AWS::Events::Rule
+  JobDefinitionFailCron:
+    Properties:
+      ContainerProperties:
+        Command:
+          - /bin/sh
+          - -c
+          - exit 1
+        ExecutionRoleArn: !GetAtt 'BatchTaskFargateRole.Arn'
+        FargatePlatformConfiguration:
+          PlatformVersion: 1.4.0
+        Image: public.ecr.aws/amazonlinux/amazonlinux:latest
+        JobRoleArn: !GetAtt 'BatchTaskFargateRole.Arn'
+        LogConfiguration:
+          LogDriver: awslogs
+        NetworkConfiguration:
+          AssignPublicIp: ENABLED
+        ResourceRequirements:
+          - Type: MEMORY
+            Value: '8192'
+          - Type: VCPU
+            Value: '1'
+      JobDefinitionName: cron-fail
+      PlatformCapabilities:
+        - FARGATE
+      RetryStrategy:
+        Attempts: 3
+      Timeout:
+        AttemptDurationSeconds: 3600
+      Type: container
+    Type: AWS::Batch::JobDefinition
+  JobDefinitionSuccessCron:
+    Properties:
+      ContainerProperties:
+        Command:
+          - echo
+          - '''Success'''
+        ExecutionRoleArn: !GetAtt 'BatchTaskFargateRole.Arn'
+        FargatePlatformConfiguration:
+          PlatformVersion: 1.4.0
+        Image: public.ecr.aws/amazonlinux/amazonlinux:latest
+        JobRoleArn: !GetAtt 'BatchTaskFargateRole.Arn'
+        LogConfiguration:
+          LogDriver: awslogs
+        NetworkConfiguration:
+          AssignPublicIp: ENABLED
+        ResourceRequirements:
+          - Type: MEMORY
+            Value: '8192'
+          - Type: VCPU
+            Value: '1'
+      JobDefinitionName: cron-success
+      PlatformCapabilities:
+        - FARGATE
+      RetryStrategy:
+        Attempts: 3
+      Timeout:
+        AttemptDurationSeconds: 3600
+      Type: container
+    Type: AWS::Batch::JobDefinition
+  JobQueueCron:
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref 'ComputeEnvironment'
+          Order: 1
+      JobQueueName: cron-queue
+      Priority: 60
+      State: ENABLED
+    Type: AWS::Batch::JobQueue
+  LambdaCronFailNotify:
+    Properties:
+      CodeUri: cron_fail_notify
+      Environment:
+        Variables:
+          WebhookUrl: !Ref 'WebhookUrl'
+      FunctionName: lambda_cron_fail_notify
+      Handler: app.lambda_handler
+      MemorySize: 128
+      Role: !GetAtt 'LambdaExecutionRole.Arn'
+      Runtime: python3.9
+      Timeout: 900
+    Type: AWS::Serverless::Function
+  LambdaExecutionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+        Version: '2012-10-17'
+      Path: /
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - logs:*
+                Effect: Allow
+                Resource: arn:aws:logs:*:*:*
+              - Action:
+                  - lambda:*
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'
+          PolicyName: root
+    Type: AWS::IAM::Role
+  LambdaInvokePermissionCronFailed:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref 'LambdaCronFailNotify'
+      Principal: sns.amazonaws.com
+      SourceArn: !Ref 'CronFailed'
+    Type: AWS::Lambda::Permission
+Transform: AWS::Serverless-2016-10-31
+

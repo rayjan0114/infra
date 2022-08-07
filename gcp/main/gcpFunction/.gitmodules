@@ -1,0 +1,4 @@
+[submodule "auth-espv2"]
+	path = auth-espv2
+	url = https://github.com/side-project-collaboration-platform/auth-espv2
+

@@ -1,0 +1,12 @@
+*.ipynb
+.venv
+log
+__pycache__
+*.jpg
+.DS_Store
+.vscode
+*.tgz
+.git
+.gitignore
+deploy.sh
+deploy_all.sh

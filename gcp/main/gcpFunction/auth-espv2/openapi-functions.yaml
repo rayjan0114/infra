@@ -1,0 +1,324 @@
+swagger: "2.0"
+info:
+  title: Cloud Endpoints + GCF
+  description: Sample API on Cloud Endpoints with a Google Cloud Functions backend
+  version: 1.0.0
+host: auth-ici2snie7q-de.a.run.app
+x-google-endpoints:
+  - name: "auth-ici2snie7q-de.a.run.app"
+    allowCors: True
+schemes:
+  - https
+produces:
+  - application/json
+securityDefinitions:
+  firebase:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    # Replace YOUR-PROJECT-ID with your project ID
+    x-google-issuer: "https://securetoken.google.com/sideproject-306713"
+    x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+    x-google-audiences: "sideproject-306713"
+security:
+  - firebase: []
+
+paths:
+  /profile:
+    get:
+      summary: get profile
+      operationId: getProfile
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/profile
+        protocol: h2
+      parameters:
+        - name: UUID
+          in: query
+          required: true
+          type: string
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+    post:
+      summary: create profile
+      operationId: createProfile
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/profile
+        protocol: h2
+      parameters:
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: "#/definitions/Profile"
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+    put:
+      summary: update profile
+      operationId: updateProfile
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/profile
+        protocol: h2
+
+      parameters:
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: "#/definitions/Profile"
+      responses:
+        "200":
+          description: A error response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+    delete:
+      summary: delete a profile
+      operationId: deletePorfile
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/profile
+        protocol: h2
+      parameters:
+        - name: UUID
+          in: query
+          required: false
+          type: string
+      responses:
+        "200":
+          description: A error response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+  /basic_info:
+    get:
+      summary: get basic_info
+      operationId: getBasicInfo
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/basic_info
+        protocol: h2
+      parameters:
+        - name: UUID
+          in: query
+          required: true
+          type: string
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+  /basicInfo:
+    get:
+      summary: get basicInfo
+      operationId: getBasicInfoV2
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/basicInfo
+        protocol: h2
+      parameters:
+        - name: uuid
+          in: query
+          required: true
+          type: string
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+  /project:
+    get:
+      summary: get a project
+      operationId: getProfileByname
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/project
+        protocol: h2
+      parameters:
+        - name: UUID
+          in: query
+          required: true
+          type: string
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+    post:
+      summary: create a project
+      operationId: createProject
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/project
+        protocol: h2
+      parameters:
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: "#/definitions/Project"
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+    put:
+      summary: update project
+      operationId: updateProject
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/project
+        protocol: h2
+
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Project"
+      responses:
+        "200":
+          description: A success response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+    delete:
+      summary: delete a project
+      operationId: deleteProject
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/project
+        protocol: h2
+      parameters:
+        - name: name
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+  /fileApi:
+    post:
+      summary: upsert a file
+      operationId: upsertFile
+      x-google-backend:
+        address: https://asia-northeast1-sideproject-306713.cloudfunctions.net/fileApi
+        protocol: h2
+      parameters:
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: "#/definitions/FileApi"
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            type: string
+        "400":
+          description: A error response
+          schema:
+            type: string
+definitions:
+  Profile:
+    properties:
+      Bio:
+        type: string
+      Links:
+        type: array
+        items:
+          type: string
+      name:
+        type: string
+      Location:
+        type: string
+      Role:
+        type: string
+      Seniority:
+        type: string
+      Skill:
+        type: string
+      UUID:
+        type: string
+  Project:
+    properties:
+      name:
+        type: string
+      roles:
+        type: array
+      description:
+        type: string
+      image:
+        type: string
+      stage:
+        type: string
+      location:
+        type: string
+      category:
+        type: array
+      purpose:
+        type: string
+      rules:
+        type: string
+      hours:
+        type: string
+  FileApi:
+    properties:
+      name:
+        type: string
+      roles:
+        type: array
+      description:
+        type: string
+      image:
+        type: string
+      stage:
+        type: string
+      location:
+        type: string
+      category:
+        type: array
+      purpose:
+        type: string
+      rules:
+        type: string
+      hours:
+        type: string

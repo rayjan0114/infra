@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "infra"
+version = "0.1.0"
+description = ""
+authors = ["ray <rayjan0114@icloud.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+troposphere = "^4.0.2"
+awacs = "^2.2.0"
+requests = "^2.28.1"
+loguru = "^0.6.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

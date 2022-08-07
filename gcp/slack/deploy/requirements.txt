@@ -1,0 +1,2 @@
+slackclient==2.7.2
+loguru==0.5.3
